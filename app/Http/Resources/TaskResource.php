@@ -23,7 +23,7 @@ class TaskResource extends JsonResource
             'title'       => $this->title,
             'description' => $this->description,
             'completedAt' => $this->completed_at,
-            'createdAt'   => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
+            'createdAt'   => $this->created_at,
             'subtask'       => new TaskCollection($this->subtask),
         ];
     }

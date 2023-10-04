@@ -22,8 +22,8 @@ class TaskFilterResource extends JsonResource
             'status'      => $this->status,
             'title'       => $this->title,
             'description' => $this->description,
-            'completedAt' => $this->completed_at,
-            'createdAt'   => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
+            'completedAt' => Carbon::parse($this->completed_at)->format('Y-m-d H:i:s'),
+            'createdAt'   => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
         ];
     }
 }

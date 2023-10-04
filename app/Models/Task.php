@@ -31,6 +31,10 @@ class Task extends Model
         'user_id'
     ];
 
+    protected $casts = [
+        'completed_at' => 'datetime',
+    ];
+
     protected $attributes = [
         'status' => TaskStatusEnum::TODO
     ];
