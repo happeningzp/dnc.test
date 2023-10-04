@@ -32,7 +32,7 @@ class Task extends Model
     ];
 
     protected $attributes = [
-        'status' => TaskStatusEnum::Todo
+        'status' => TaskStatusEnum::TODO
     ];
 
     public function user() {
@@ -49,7 +49,7 @@ class Task extends Model
         $subtask = $this->subtask;
 
         foreach ($subtask as $task) {
-            if ($task->status === TaskStatusEnum::Todo->value || $task->hasNotDoneChild()) {
+            if ($task->status === TaskStatusEnum::TODO->value || $task->hasNotDoneChild()) {
                 return true;
             }
         }

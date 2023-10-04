@@ -19,8 +19,10 @@ class BaseController extends Controller
             'message' => $message,
         ];
 
-        if(!empty($data))
+        if (!empty($data)) {
             $response['data'] = $data;
+        }
+
 
         return response()->json($response, $status);
     }
@@ -32,8 +34,10 @@ class BaseController extends Controller
             'message' => $message
         ];
 
-        if(!empty($errors))
+        if (!empty($errors)) {
             $response['errors'] = $errors;
+        }
+
 
         return response()->json($response, $status);
     }

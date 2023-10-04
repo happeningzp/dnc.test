@@ -16,7 +16,7 @@ class RegisterRequest extends FormRequestJson
         return [
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed']
+            'password' => ['required', 'confirmed', 'min:6']
         ];
     }
 }

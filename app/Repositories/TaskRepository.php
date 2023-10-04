@@ -35,7 +35,7 @@ class TaskRepository implements TaskRepositoryInterface
             $order = $request['order'] ?? 'asc';
             $query->sortBy($request['sort'], $order);
 
-            $query->subtaskSortBy( $request['sort'], $order);
+            $query->subtaskSortBy($request['sort'], $order);
         } else {
             //without sorting
             $query->with('subtask');
@@ -79,32 +79,22 @@ class TaskRepository implements TaskRepositoryInterface
     /**
      * @param User $user
      * @param $data
-     * @return \Illuminate\Database\Eloquent\Model|false
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function create(User $user, $data)
     {
-        try {
-            return $user->tasks()->create($data);
-        } catch (\Throwable $e) {
-            Log::error('Error on create Task', ['message' => $e->getMessage()]);
-            return false;
-        }
+        return $user->tasks()->create($data);
     }
 
     /**
      * @param $task
      * @param $data
-     * @return Task|false
+     * @return Task
      */
     public function update($task, $data)
     {
-        try {
-            $task->update($data);
-            return $task;
-        } catch (\Throwable $e) {
-            Log::error('Error on update Task', ['message' => $e->getMessage()]);
-            return false;
-        }
+        $task->update($data);
+        return $task;
     }
 
     /**
@@ -113,13 +103,7 @@ class TaskRepository implements TaskRepositoryInterface
      */
     public function delete(Task $task)
     {
-        try {
-            $task->delete();
-            return true;
-        } catch (\Throwable $e) {
-            Log::error('Error on delete Task', ['message' => $e->getMessage()]);
-            return false;
-        }
+        return $task->delete();
     }
 
     /**
@@ -130,7 +114,7 @@ class TaskRepository implements TaskRepositoryInterface
     {
         try {
             $task->update([
-                'status' => TaskStatusEnum::Done
+                'status' => TaskStatusEnum::DONE
             ]);
             return $task;
         } catch (\Throwable $e) {

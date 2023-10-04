@@ -2,8 +2,8 @@
 
 namespace App\Enums;
 
-enum TaskStatusEnum: string
+enum TaskStatusEnum: int
 {
-    case Todo = 'todo';
-    case Done = 'done';
+    case TODO = 0;
+    case DONE = 1;
 }

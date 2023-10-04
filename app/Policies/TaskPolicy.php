@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Enums\TaskStatusEnum;
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class TaskPolicy
 {
@@ -30,13 +29,13 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        return $user->id === $task->user_id && $task->status !== TaskStatusEnum::Done;
+        return $user->id === $task->user_id && $task->status !== TaskStatusEnum::DONE;
     }
 
     public function markDone(User $user, Task $task): bool
     {
         return
             $user->id === $task->user_id
-            && $task->status !== TaskStatusEnum::Done;
+            && $task->status !== TaskStatusEnum::DONE;
     }
 }

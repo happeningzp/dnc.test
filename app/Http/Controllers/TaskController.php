@@ -10,7 +10,6 @@ use App\Http\Resources\TaskFilterCollection;
 use App\Http\Resources\TaskResource;
 use App\Interfaces\TaskRepositoryInterface;
 use App\Models\Task;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends BaseController
@@ -27,7 +26,7 @@ class TaskController extends BaseController
         $user = Auth::user();
 
         // filters
-        if($request->hasAny(['priority_from', 'priority_to', 'status', 'title'])) {
+        if ($request->hasAny(['priority_from', 'priority_to', 'status', 'title'])) {
             $data = $this->repository->getWithFilter($user, $request);
             return $this->responseSuccess('Tasks load successfully.', new TaskFilterCollection($data));
         }
@@ -42,11 +41,7 @@ class TaskController extends BaseController
      */
     public function show(Task $task)
     {
-        $user = Auth::user();
-
-        if(!$user->can('view', $task)) {
-            return $this->responseError('You haven\'t access to this task.');
-        }
+        $this->authorize('view', $task);
 
         return $this->responseSuccess('Task loaded successfully.', [new TaskResource($task)]);
     }
@@ -56,15 +51,10 @@ class TaskController extends BaseController
      */
     public function store(StoreTaskRequest $request)
     {
-        $user      = Auth::user();
         $validated = $request->all();
-        $task      = $this->repository->create($user, $validated);
+        $task = $this->repository->create($request->user(), $validated);
 
-        if($task) {
-            return $this->responseSuccess('Task created successfully.', new TaskResource($task));
-        }
-
-        return $this->responseError('Error on create task.', 500);
+        return $this->responseSuccess('Task created successfully.', new TaskResource($task));
     }
 
     /**
@@ -72,18 +62,10 @@ class TaskController extends BaseController
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        $user = Auth::user();
-
-        if(!$user->can('update', $task)) {
-            return $this->responseError('You can\' edit this task.');
-        }
+        $this->authorize('update', $task);
 
         $task = $this->repository->update($task, $request->all());
-        if($task) {
-            return $this->responseSuccess('Task successfully updated.', new TaskResource($task));
-        }
-
-        return $this->responseError('Error on edit task.', 500);
+        return $this->responseSuccess('Task successfully updated.', new TaskResource($task));
     }
 
     /**
@@ -91,18 +73,11 @@ class TaskController extends BaseController
      */
     public function destroy(Task $task)
     {
-        $user = Auth::user();
+        $this->authorize('delete', $task);
 
-        if(!$user->can('delete', $task)) {
-            return $this->responseError('You can\'t delete this task.');
-        }
+        $this->repository->delete($task);
 
-        $result = $this->repository->delete($task);
-        if($result) {
-            return $this->responseSuccess('Task successfully deleted.');
-        }
-
-        return $this->responseError('Error on delete task.', 500);
+        return $this->responseSuccess('Task successfully deleted.');
     }
 
     /**
@@ -110,18 +85,14 @@ class TaskController extends BaseController
      */
     public function markDone(Task $task)
     {
-        $user = Auth::user();
+        $this->authorize('mark-done', $task);
 
-        if(!$user->can('mark-done', $task)) {
-            return $this->responseError('You can\'t update this task.');
-        }
-
-        if($task->hasNotDoneChild()) {
+        if ($task->hasNotDoneChild()) {
             return $this->responseError('You must complete all child tasks.');
         }
 
         $task = $this->repository->markDone($task);
-        if($task) {
+        if ($task) {
             return $this->responseSuccess('Task successfully updated.', new TaskResource($task));
         }
 
