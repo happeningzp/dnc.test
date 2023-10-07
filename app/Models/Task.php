@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\TaskStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -35,10 +34,6 @@ class Task extends Model
         'completed_at' => 'datetime',
     ];
 
-    protected $attributes = [
-        'status' => TaskStatusEnum::TODO
-    ];
-
     public function user() {
         return $this->belongsTo(User::class);
     }
@@ -53,7 +48,7 @@ class Task extends Model
         $subtask = $this->subtask;
 
         foreach ($subtask as $task) {
-            if ($task->status === TaskStatusEnum::TODO->value || $task->hasNotDoneChild()) {
+            if ($task->status === 1 || $task->hasNotDoneChild()) {
                 return true;
             }
         }

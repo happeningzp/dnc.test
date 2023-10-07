@@ -8,13 +8,17 @@ use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Http\Resources\TaskCollection;
 use App\Http\Resources\TaskFilterCollection;
 use App\Http\Resources\TaskResource;
-use App\Interfaces\TaskRepositoryInterface;
+use App\Interfaces\Task\TaskRepositoryInterface;
+use App\Interfaces\Task\TaskServiceInterface;
 use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends BaseController
 {
-    public function __construct(protected TaskRepositoryInterface $repository)
+    public function __construct(
+        protected TaskRepositoryInterface $taskRepository,
+        protected TaskServiceInterface $taskService
+    )
     {
     }
 
@@ -27,13 +31,13 @@ class TaskController extends BaseController
 
         // filters
         if ($request->hasAny(['priority_from', 'priority_to', 'status', 'title'])) {
-            $data = $this->repository->getWithFilter($user, $request);
-            return $this->responseSuccess('Tasks load successfully.', new TaskFilterCollection($data));
+            $data = $this->taskRepository->getWithFilter($user, $request);
+            return $this->responseSuccess(new TaskFilterCollection($data));
         }
 
         // no filters
-        $data = $this->repository->getAll($user, $request->only(['sort', 'order']));
-        return $this->responseSuccess('Tasks load successfully.', new TaskCollection($data));
+        $data = $this->taskRepository->getAll($user, $request->only(['sort', 'order']));
+        return $this->responseSuccess(new TaskCollection($data));
     }
 
     /**
@@ -43,7 +47,7 @@ class TaskController extends BaseController
     {
         $this->authorize('view', $task);
 
-        return $this->responseSuccess('Task loaded successfully.', [new TaskResource($task)]);
+        return $this->responseSuccess([new TaskResource($task)]);
     }
 
     /**
@@ -52,9 +56,9 @@ class TaskController extends BaseController
     public function store(StoreTaskRequest $request)
     {
         $validated = $request->all();
-        $task = $this->repository->create($request->user(), $validated);
+        $task = $this->taskService->create($request->user(), $validated);
 
-        return $this->responseSuccess('Task created successfully.', new TaskResource($task));
+        return $this->responseSuccess(new TaskResource($task));
     }
 
     /**
@@ -64,8 +68,8 @@ class TaskController extends BaseController
     {
         $this->authorize('update', $task);
 
-        $task = $this->repository->update($task, $request->all());
-        return $this->responseSuccess('Task successfully updated.', new TaskResource($task));
+        $task = $this->taskService->update($task, $request->all());
+        return $this->responseSuccess(new TaskResource($task));
     }
 
     /**
@@ -75,9 +79,9 @@ class TaskController extends BaseController
     {
         $this->authorize('delete', $task);
 
-        $this->repository->delete($task);
+        $this->taskService->delete($task);
 
-        return $this->responseSuccess('Task successfully deleted.');
+        return $this->responseSuccess();
     }
 
     /**
@@ -91,9 +95,9 @@ class TaskController extends BaseController
             return $this->responseError('You must complete all child tasks.');
         }
 
-        $task = $this->repository->markDone($task);
+        $task = $this->taskService->markDone($task);
         if ($task) {
-            return $this->responseSuccess('Task successfully updated.', new TaskResource($task));
+            return $this->responseSuccess(new TaskResource($task));
         }
 
         return $this->responseError('Error on update task.', 500);

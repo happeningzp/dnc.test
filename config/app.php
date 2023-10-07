@@ -172,7 +172,7 @@ return [
         /*
          * Custom providers
          */
-        App\Providers\RepositoryServiceProvider::class,
+        App\Providers\InterfaceServiceProvider::class,
     ])->toArray(),
 
     /*

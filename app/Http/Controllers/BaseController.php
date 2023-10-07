@@ -12,11 +12,10 @@ class BaseController extends Controller
      * @param $status
      * @return \Illuminate\Http\JsonResponse
      */
-    public function responseSuccess($message, $data = [], $status = 200): \Illuminate\Http\JsonResponse
+    public function responseSuccess($data = [], $status = 200): \Illuminate\Http\JsonResponse
     {
         $response = [
             'success' => true,
-            'message' => $message,
         ];
 
         if (!empty($data)) {
@@ -27,11 +26,10 @@ class BaseController extends Controller
         return response()->json($response, $status);
     }
 
-    public function responseError($message, $errors = [], $status = 403)
+    public function responseError($errors = [], $status = 403)
     {
         $response = [
             'success' => false,
-            'message' => $message
         ];
 
         if (!empty($errors)) {

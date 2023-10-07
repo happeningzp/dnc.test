@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\Task;
 
-use App\Enums\TaskStatusEnum;
-use App\Interfaces\TaskRepositoryInterface;
+use App\Interfaces\Task\TaskRepositoryInterface;
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 
 class TaskRepository implements TaskRepositoryInterface
 {
@@ -74,52 +72,5 @@ class TaskRepository implements TaskRepositoryInterface
         }
 
         return $query->get();
-    }
-
-    /**
-     * @param User $user
-     * @param $data
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function create(User $user, $data)
-    {
-        return $user->tasks()->create($data);
-    }
-
-    /**
-     * @param $task
-     * @param $data
-     * @return Task
-     */
-    public function update($task, $data)
-    {
-        $task->update($data);
-        return $task;
-    }
-
-    /**
-     * @param Task $task
-     * @return bool
-     */
-    public function delete(Task $task)
-    {
-        return $task->delete();
-    }
-
-    /**
-     * @param Task $task
-     * @return Task|false
-     */
-    public function markDone(Task $task)
-    {
-        try {
-            $task->update([
-                'status' => TaskStatusEnum::DONE
-            ]);
-            return $task;
-        } catch (\Throwable $e) {
-            Log::error('Error markDone Task', ['message' => $e->getMessage()]);
-            return false;
-        }
     }
 }
