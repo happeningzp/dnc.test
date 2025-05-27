@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TaskStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -44,14 +45,20 @@ class Task extends Model
 
     public function hasNotDoneChild()
     {
-        $this->load('subtask');
-        $subtask = $this->subtask;
+        // Ensure subtasks are loaded. loadMissing() is efficient.
+        $this->loadMissing('subtask');
 
-        foreach ($subtask as $task) {
-            if ($task->status === 1 || $task->hasNotDoneChild()) {
+        foreach ($this->subtask as $subTask) {
+            // If the current subtask is not done, then the parent has a "not done child".
+            if ($subTask->status !== TaskStatusEnum::DONE->value) {
+                return true;
+            }
+            // If the current subtask is done, recursively check if IT has any "not done children".
+            if ($subTask->hasNotDoneChild()) {
                 return true;
             }
         }
+        // If the loop completes, all subtasks and their descendants are done.
         return false;
     }
 

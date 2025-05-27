@@ -2,6 +2,7 @@
 
 namespace App\Services\Task;
 
+use App\Enums\TaskStatusEnum;
 use App\Interfaces\Task\TaskServiceInterface;
 use App\Models\Task;
 use App\Models\User;
@@ -44,9 +45,13 @@ class TaskService implements TaskServiceInterface
      */
     public function markDone(Task $task)
     {
-        $task->update([
-            'status' => 1
+        $updated = $task->update([
+            'status' => TaskStatusEnum::DONE
         ]);
-        return $task;
+
+        if (!$updated) {
+            return false; // Explicitly return false if update failed
+        }
+        return $task; // Return the task model on success
     }
 }
