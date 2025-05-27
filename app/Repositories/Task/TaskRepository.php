@@ -67,8 +67,14 @@ class TaskRepository implements TaskRepositoryInterface
         }
 
         if($request->has('sort')) {
-            $order = $request['order'] ?? 'asc';
-            $query->sortBy($request->sort, $order);
+            $order = $request->input('order', 'asc');
+            $sortField = $request->input('sort');
+            $query->sortBy($sortField, $order);
+            // Also sort subtasks if sorting is applied to parent tasks
+            $query->subtaskSortBy($sortField, $order);
+        } else {
+            // If no sorting, still load subtasks for the filtered parents
+            $query->with('subtask');
         }
 
         return $query->get();

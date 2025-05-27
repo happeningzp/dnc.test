@@ -16,7 +16,7 @@ class StoreTaskRequest extends FormRequestJson
     public function rules(): array
     {
         return [
-            'parent_id'    => ['integer', 'exists:tasks,id'],
+            'parent_id'    => ['nullable', 'integer', 'exists:tasks,id'],
             'title'        => ['required', 'string', 'max:255'],
             'description'  => ['string', 'max:2048'],
             'status'       => [new Enum(TaskStatusEnum::class)],

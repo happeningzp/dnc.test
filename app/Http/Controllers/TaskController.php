@@ -95,11 +95,12 @@ class TaskController extends BaseController
             return $this->responseError('You must complete all child tasks.');
         }
 
-        $task = $this->taskService->markDone($task);
-        if ($task) {
-            return $this->responseSuccess(new TaskResource($task));
+        $updatedTask = $this->taskService->markDone($task);
+        if ($updatedTask) {
+            return $this->responseSuccess(new TaskResource($updatedTask));
         }
 
-        return $this->responseError('Error on update task.', 500);
+        // If the service returned false, it means the update failed without an exception
+        return $this->responseError('Failed to update task status to done.', 500);
     }
 }
