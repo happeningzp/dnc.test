@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Task;
 
 use App\Enums\TaskStatusEnum;
+use App\Rules\NotDescendantOrSelf; // Import the custom rule
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
@@ -15,8 +16,15 @@ class UpdateTaskRequest extends FormRequest
      */
     public function rules(): array
     {
+        $taskId = $this->route('task')->id;
+
         return [
-            'parent_id'    => ['integer', 'exists:tasks,id'],
+            'parent_id'    => [
+                'nullable',
+                'integer',
+                'exists:tasks,id', // Ensures the parent_id exists
+                new NotDescendantOrSelf($taskId) // Custom rule for self and descendant check
+            ],
             'title'        => ['string', 'max:255'],
             'description'  => ['string', 'max:2048'],
             'status'       => [new Enum(TaskStatusEnum::class)],
