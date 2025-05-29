@@ -19,16 +19,22 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['http://localhost:5173', 'http://127.0.0.1:5173'], // Specific frontend origins
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => [
+        'Content-Type',
+        'X-Requested-With',
+        'Accept',
+        'X-XSRF-TOKEN', // Important for Laravel Sanctum CSRF protection
+        // 'Authorization', // Removed as we are moving towards cookie-based auth
+    ],
 
     'exposed_headers' => [],
 
-    'max_age' => 0,
+    'max_age' => 0, // Or a suitable value like 3600
 
-    'supports_credentials' => false,
+    'supports_credentials' => true, // Essential for cookie-based sessions (Sanctum)
 
 ];

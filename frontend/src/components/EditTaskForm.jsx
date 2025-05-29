@@ -24,12 +24,14 @@ const EditTaskForm = ({ taskToEdit, onTaskUpdated, onCancelEdit }) => {
     const [validationErrors, setValidationErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
-    const commonInputClasses = "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm";
+    // Consistent styling classes (as defined in CreateTaskForm)
+    const commonInputClasses = "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 sm:text-sm";
     const commonLabelClasses = "block text-sm font-medium text-gray-700";
     const commonErrorClasses = "text-xs text-red-600 mt-1";
-    const commonButtonClasses = "py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50";
-    const primaryButtonClasses = "text-white bg-indigo-600 hover:bg-indigo-700";
-    const secondaryButtonClasses = "text-gray-700 bg-gray-200 hover:bg-gray-300";
+    
+    const baseButtonClasses = "inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 transition-colors duration-150";
+    const primaryButtonClasses = `${baseButtonClasses} text-white bg-green-600 hover:bg-green-700 focus:ring-green-500`; // Green primary
+    const secondaryButtonClasses = `${baseButtonClasses} text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-gray-400`; // Gray secondary
 
     useEffect(() => {
         if (taskToEdit) {
@@ -101,11 +103,11 @@ const EditTaskForm = ({ taskToEdit, onTaskUpdated, onCancelEdit }) => {
     if (!taskToEdit) return null;
 
     return (
-        <div className="p-6 my-4 bg-white rounded-lg shadow-md border border-blue-500">
-            <h3 className="text-xl font-semibold text-gray-700 mb-4">Edit Task: <span className="font-normal italic">{taskToEdit.title}</span></h3>
-            {error && !Object.keys(validationErrors).length && <p className={`mb-4 text-sm ${validationErrors ? 'text-red-600' : 'text-gray-600'}`}>{error}</p>}
+        <div className="p-6 my-4 bg-white rounded-lg shadow border border-gray-200"> {/* Light border, consistent with CreateTaskForm */}
+            <h3 className="text-xl font-semibold text-gray-800 mb-6">Edit Task: <span className="font-normal italic text-gray-600">{taskToEdit.title}</span></h3>
+            {error && !Object.keys(validationErrors).length && <p className={`mb-4 text-sm text-red-600`}>{error}</p>}
             
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5"> {/* Increased space-y */}
                 <div>
                     <label htmlFor="edit-task-title" className={`${commonLabelClasses}`}>
                         Title <span className="text-red-500">*</span>
@@ -178,19 +180,19 @@ const EditTaskForm = ({ taskToEdit, onTaskUpdated, onCancelEdit }) => {
                     />
                     {validationErrors.parent_id && <p className={commonErrorClasses}>{validationErrors.parent_id}</p>}
                 </div>
-                <div className="flex items-center justify-end space-x-3 pt-2">
+                <div className="flex items-center justify-end space-x-3 pt-3"> {/* Increased pt */}
                     <button 
                         type="button" 
                         onClick={onCancelEdit} 
                         disabled={loading}
-                        className={`${commonButtonClasses} ${secondaryButtonClasses}`}
+                        className={secondaryButtonClasses} // Use new secondary button style
                     >
                         Cancel
                     </button>
                     <button 
                         type="submit" 
                         disabled={loading}
-                        className={`${commonButtonClasses} ${primaryButtonClasses}`}
+                        className={primaryButtonClasses} // Use new primary button style
                     >
                         {loading ? 'Updating...' : 'Update Task'}
                     </button>

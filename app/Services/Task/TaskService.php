@@ -5,18 +5,23 @@ namespace App\Services\Task;
 use App\Enums\TaskStatusEnum;
 use App\Interfaces\Task\TaskServiceInterface;
 use App\Models\Task;
-use App\Models\User;
+// Removed: use App\Models\User;
 
 class TaskService implements TaskServiceInterface
 {
     /**
-     * @param User $user
-     * @param $data
+     * @param array $data
+     * @param string $cookieUserId
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function create(User $user, $data)
+    public function create(array $data, string $cookieUserId)
     {
-        return $user->tasks()->create($data);
+        $data['cookie_user_id'] = $cookieUserId;
+        // user_id might still be needed if you want to associate with a registered user later,
+        // but for now, focusing on cookie_user_id. If user_id is not in $data, it will be null.
+        // If your $fillable in Task model doesn't include user_id or it's nullable, this is fine.
+        // Or, if user_id should be explicitly null: $data['user_id'] = null;
+        return Task::create($data);
     }
 
     /**

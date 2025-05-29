@@ -11,7 +11,7 @@ use App\Http\Resources\TaskResource;
 use App\Interfaces\Task\TaskRepositoryInterface;
 use App\Interfaces\Task\TaskServiceInterface;
 use App\Models\Task;
-use Illuminate\Support\Facades\Auth;
+// Removed: use Illuminate\Support\Facades\Auth;
 
 class TaskController extends BaseController
 {
@@ -27,16 +27,19 @@ class TaskController extends BaseController
      */
     public function index(IndexTaskRequest $request)
     {
-        $user = Auth::user();
+        $cookieUserId = $request->cookie('user_tasks_identifier');
+        if (!$cookieUserId) {
+            return $this->responseError('User identifier not found.', 401);
+        }
 
         // filters
         if ($request->hasAny(['priority_from', 'priority_to', 'status', 'title'])) {
-            $data = $this->taskRepository->getWithFilter($user, $request);
+            $data = $this->taskRepository->getWithFilter($cookieUserId, $request);
             return $this->responseSuccess(new TaskFilterCollection($data));
         }
 
         // no filters
-        $data = $this->taskRepository->getAll($user, $request->only(['sort', 'order']));
+        $data = $this->taskRepository->getAll($cookieUserId, $request->only(['sort', 'order']));
         return $this->responseSuccess(new TaskCollection($data));
     }
 
@@ -45,7 +48,10 @@ class TaskController extends BaseController
      */
     public function show(Task $task)
     {
-        $this->authorize('view', $task);
+        $cookieUserId = request()->cookie('user_tasks_identifier');
+        if (!$cookieUserId || $task->cookie_user_id !== $cookieUserId) {
+            return $this->responseError('Task not found or access denied.', 404); // Or 403
+        }
 
         return $this->responseSuccess([new TaskResource($task)]);
     }
@@ -55,8 +61,13 @@ class TaskController extends BaseController
      */
     public function store(StoreTaskRequest $request)
     {
+        $cookieUserId = $request->cookie('user_tasks_identifier');
+        if (!$cookieUserId) {
+            return $this->responseError('User identifier not found.', 401);
+        }
         $validated = $request->all();
-        $task = $this->taskService->create($request->user(), $validated);
+        // Pass cookieUserId to the service
+        $task = $this->taskService->create($validated, $cookieUserId); 
 
         return $this->responseSuccess(new TaskResource($task));
     }
@@ -66,7 +77,10 @@ class TaskController extends BaseController
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        $this->authorize('update', $task);
+        $cookieUserId = $request->cookie('user_tasks_identifier');
+        if (!$cookieUserId || $task->cookie_user_id !== $cookieUserId) {
+            return $this->responseError('Task not found or access denied.', 404); // Or 403
+        }
 
         $task = $this->taskService->update($task, $request->all());
         return $this->responseSuccess(new TaskResource($task));
@@ -77,7 +91,10 @@ class TaskController extends BaseController
      */
     public function destroy(Task $task)
     {
-        $this->authorize('delete', $task);
+        $cookieUserId = request()->cookie('user_tasks_identifier');
+        if (!$cookieUserId || $task->cookie_user_id !== $cookieUserId) {
+            return $this->responseError('Task not found or access denied.', 404); // Or 403
+        }
 
         $this->taskService->delete($task);
 
@@ -89,7 +106,10 @@ class TaskController extends BaseController
      */
     public function markDone(Task $task)
     {
-        $this->authorize('mark-done', $task);
+        $cookieUserId = request()->cookie('user_tasks_identifier');
+        if (!$cookieUserId || $task->cookie_user_id !== $cookieUserId) {
+            return $this->responseError('Task not found or access denied.', 404); // Or 403
+        }
 
         if ($task->hasNotDoneChild()) {
             return $this->responseError('You must complete all child tasks.');
