@@ -13,7 +13,8 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        return $user->id === $task->user_id;
+        // Authorization now handled by cookie_user_id check in controller
+        return true; // Or false, depending on desired default if accidentally called
     }
 
     /**
@@ -21,7 +22,8 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        return $user->id === $task->user_id;
+        // Authorization now handled by cookie_user_id check in controller
+        return true;
     }
 
     /**
@@ -29,13 +31,15 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        return $user->id === $task->user_id && $task->status !== TaskStatusEnum::DONE;
+        // Authorization now handled by cookie_user_id check in controller
+        // Original logic: return $user->id === $task->user_id && $task->status !== TaskStatusEnum::DONE;
+        return true;
     }
 
     public function markDone(User $user, Task $task): bool
     {
-        return
-            $user->id === $task->user_id
-            && $task->status !== TaskStatusEnum::DONE;
+        // Authorization now handled by cookie_user_id check in controller
+        // Original logic: return $user->id === $task->user_id && $task->status !== TaskStatusEnum::DONE;
+        return true;
     }
 }

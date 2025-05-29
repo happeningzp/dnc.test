@@ -19,6 +19,7 @@ class Task extends Model
     protected $fillable = [
         'parent_id',
         'user_id',
+        'cookie_user_id', // Added cookie_user_id
         'title',
         'description',
         'status',

@@ -20,7 +20,6 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('tasks/{task}/done', [TaskController::class, 'markDone']);
-    Route::apiResource('tasks', TaskController::class);
-});
+// Removed auth:sanctum middleware for task routes
+Route::post('tasks/{task}/done', [TaskController::class, 'markDone']);
+Route::apiResource('tasks', TaskController::class);

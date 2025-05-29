@@ -1,32 +1,21 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { logout as logoutService } from '../services/authService';
-import { deleteTask as deleteTaskService, markTaskDone as markTaskDoneService } from '../services/taskService'; // Import markTaskDone
+// Removed useNavigate and useAuth as they are no longer used directly here.
+import { deleteTask as deleteTaskService, markTaskDone as markTaskDoneService } from '../services/taskService';
 import TaskList from '../components/TaskList';
 import CreateTaskForm from '../components/CreateTaskForm';
 import EditTaskForm from '../components/EditTaskForm';
 
 const DashboardPage = () => {
-    const { user, logoutContext } = useAuth();
-    const navigate = useNavigate();
-    
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
     const [showEditForm, setShowEditForm] = useState(false);
     const [taskListRefreshKey, setTaskListRefreshKey] = useState(0); 
 
-    const handleLogout = async () => {
-        try {
-            await logoutService();
-            logoutContext();
-            navigate('/login');
-        } catch (error) {
-            console.error('Logout failed:', error);
-            logoutContext();
-            navigate('/login');
-        }
-    };
+    // Base button classes (consistent with other forms)
+    const baseButtonClasses = "inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 transition-colors duration-150";
+    // Primary (Green)
+    const primaryButtonClasses = `${baseButtonClasses} text-white bg-green-600 hover:bg-green-700 focus:ring-green-500`;
+
 
     const handleTaskCreated = (newTask) => {
         console.log('New task created:', newTask);
@@ -76,34 +65,30 @@ const DashboardPage = () => {
         try {
             await markTaskDoneService(taskId);
             console.log(`Task ${taskId} marked as done.`);
-            setTaskListRefreshKey(prevKey => prevKey + 1); // Refresh the task list
-            // If currently editing this task, close the edit form as its status has changed
+            setTaskListRefreshKey(prevKey => prevKey + 1);
             if (editingTask && editingTask.id === taskId) {
                 handleCancelEdit();
             }
         } catch (error) {
             console.error(`Error marking task ${taskId} as done:`, error);
-            // Display specific error from backend if available (e.g., "You must complete all child tasks.")
             alert(`Failed to mark task as done: ${error.message || 'Unknown error'}`);
         }
     };
 
-    if (!user) {
-        return <p>Loading user data or not logged in...</p>;
-    }
-
     return (
-        <div>
-            <h1>User Dashboard</h1>
-            <p>Welcome, {user.name || user.email}!</p>
-            <button onClick={handleLogout} style={{ marginRight: '10px' }}>Logout</button>
+        <div className="py-2"> {/* Added small py for overall page spacing within main container */}
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-8"> {/* mb-8 for more space */}
+                <h1 className="text-3xl font-bold text-gray-800">Task Dashboard</h1>
+                {!showCreateForm && !showEditForm && (
+                    <button 
+                        onClick={() => { setShowCreateForm(true); setShowEditForm(false); setEditingTask(null); }}
+                        className={`${primaryButtonClasses} mt-4 sm:mt-0`} // Use defined primary button, add margin for mobile
+                    >
+                        Add New Task
+                    </button>
+                )}
+            </div>
             
-            {!showCreateForm && !showEditForm && (
-                <button onClick={() => { setShowCreateForm(true); setShowEditForm(false); setEditingTask(null); }}>
-                    Add New Task
-                </button>
-            )}
-
             {showCreateForm && (
                 <CreateTaskForm 
                     onTaskCreated={handleTaskCreated}
@@ -119,12 +104,14 @@ const DashboardPage = () => {
                 />
             )}
             
-            <hr style={{ margin: '20px 0' }}/>
+            {/* Conditionally render hr if a form was shown, or always if preferred */}
+            {(showCreateForm || showEditForm) && <hr className="my-8 border-gray-300"/>}
+            
             <TaskList 
                 key={taskListRefreshKey} 
                 onStartEdit={handleStartEdit}
                 onDeleteTask={handleDeleteTask}
-                onMarkTaskDone={handleMarkTaskDone} // Pass handleMarkTaskDone to TaskList
+                onMarkTaskDone={handleMarkTaskDone}
             /> 
         </div>
     );

@@ -4,7 +4,7 @@ namespace App\Repositories\Task;
 
 use App\Interfaces\Task\TaskRepositoryInterface;
 use App\Models\Task;
-use App\Models\User;
+// Removed: use App\Models\User;
 
 class TaskRepository implements TaskRepositoryInterface
 {
@@ -19,13 +19,13 @@ class TaskRepository implements TaskRepositoryInterface
     }
 
     /**
-     * @param User $user
-     * @param $request
+     * @param string $cookieUserId
+     * @param array $request
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getAll(User $user, $request)
+    public function getAll(string $cookieUserId, array $request)
     {
-        $query = $user->tasks()
+        $query = Task::where('cookie_user_id', $cookieUserId)
             ->whereNull('parent_id');
 
         if(isset($request['sort'])) {
@@ -43,13 +43,13 @@ class TaskRepository implements TaskRepositoryInterface
     }
 
     /**
-     * @param User $user
-     * @param $request
+     * @param string $cookieUserId
+     * @param \Illuminate\Http\Request $request (or specific request type like IndexTaskRequest)
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getWithFilter(User $user, $request)
+    public function getWithFilter(string $cookieUserId, $request) // Keep $request as is, type hint if desired from controller
     {
-        $query = $user->tasks();
+        $query = Task::where('cookie_user_id', $cookieUserId);
 
         if ($request->has('priority_from')) {
             $query->priorityFrom($request->priority_from);
